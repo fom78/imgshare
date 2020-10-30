@@ -4,6 +4,13 @@ const exphbs = require('express-handlebars');
 const morgan = require('morgan');
 const multer = require('multer');
 const express = require('express');
+//const exphbs = require('express-handlebars');
+//const Handlebars = require('handlebars');
+//const {allowInsecurePrototypeAccess} = require('@handlebars/allow-prototype-access')
+
+const session = require('express-session');
+const passport = require('passport');
+require('../config/passport');
 
 const routes = require('../routes');
 
@@ -30,7 +37,22 @@ module.exports = app => {
     app.use(multer({dest: path.join(__dirname, '../public/upload/temp')}).single('image')); 
     app.use(express.urlencoded({extended: false})) //Para poder recibir las imagenes del formulario
     app.use(express.json()); // Para las peticiones AJAX
-
+    
+    // Session
+    app.use(session({
+        secret: 'somesecretkey',
+        resave: true,
+        saveUninitialized: true
+      }));
+      app.use(passport.initialize());
+      app.use(passport.session());
+    
+      // Global Variables
+      app.use((req, res, next) => {
+        app.locals.user = req.user || null;
+        next();
+      });
+    
     // routes
     routes(app);
 
