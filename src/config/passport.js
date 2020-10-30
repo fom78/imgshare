@@ -1,19 +1,28 @@
 const passport = require("passport");
-const { Strategy } = require("passport-local");
+const localStrategy = require('passport-local').Strategy;
 
 const User = require("../models/user");
 
 passport.use(
-  "signup",
-  new Strategy(
+  "local",
+  new localStrategy(
     {
       usernameField: "email",
       passwordField: "password",
     },
     async (email, password, done) => {
+      // Match Email's User
       const userFound = await User.findOne({ email });
-      if (userFound) {
-        return done(null, false, { message: "The username is already Taken" });
+      if (!userFound) {
+        return done(null, false, { message: "Este email ya esta registrado" });
+      } else {
+        // Match Password's User
+        const match = await userFound.matchPassword(password);
+        if(match) {
+          return done(null, userFound);
+        } else {
+          return done(null, false, { message: 'Incorrect Password.' });
+        }
       }
       const newUser = new User();
       newUser.email = email;
@@ -43,7 +52,7 @@ passport.deserializeUser(async (id, done) => {
 });
 
 
-// passport.use('local-signin', new LocalStrategy({
+// passport.use('local-signin', new localStrategy({
 //     usernameField: 'email',
 //     passwordField: 'password',
 //     passReqToCallback: true

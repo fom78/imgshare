@@ -21,9 +21,13 @@ const userSchema = new Schema(
 //   return bcrypt.compareSync(password, this.password);
 // };
 
-userSchema.statics.encryptPassword = async function (password) {
+userSchema.methods.encryptPassword = async function (password) {
     const salt = await bcrypt.genSalt(10);
     return await bcrypt.hash(password, salt);
 };
+
+userSchema.methods.matchPassword = async function (password) {
+    return await bcrypt.compare(password, this.password);
+  };
 
 module.exports = mongoose.model('User', userSchema);
