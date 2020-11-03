@@ -2,6 +2,7 @@
 // al ser felper de hdb, ya esta configurado en config, y las funciones son visibles desde las vistas!!!
 
 const moment = require('moment');
+moment.locale('es');
 const helpers = {};
 
 helpers.timeago = timestamp => {
